@@ -12,7 +12,7 @@ function ChatText({message,isReply}) {
         >
           <Typography
             variant="h4"
-            bgcolor={"gray"}
+            bgcolor={"#e3e3e3"}
             sx={{
               width: "fit-content",
               padding: "20px",
