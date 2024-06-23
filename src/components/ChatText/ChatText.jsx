@@ -12,15 +12,14 @@ function ChatText({message,isReply, style}) {
           }}
         >
           <Typography
-            variant="h4"
+            variant="h5"
             bgcolor={"#e3e3e3"}
             sx={{
-              width: "fit-content",
+              width: "100%",
               padding: "20px",
               borderRadius: isReply?"0px 10px 10px 10px":"10px 0px 10px 10px",
             }}
-          >
-            {message}
+            dangerouslySetInnerHTML={{ __html: message}} >
           </Typography>
         </Paper>
   )

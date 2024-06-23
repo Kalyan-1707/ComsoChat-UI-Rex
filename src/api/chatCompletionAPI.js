@@ -36,8 +36,6 @@ const ChatCompletionAPI = async ({conversation}) =>  {
         'contents':conversation
     });
 
-    console.log(response?.data?.candidates[0]?.content)
-
     return response?.data?.candidates[0]?.content;
 }
 

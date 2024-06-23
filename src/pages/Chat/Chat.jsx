@@ -8,35 +8,49 @@ import {
   Typography,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import LoadingButton from '@mui/lab/LoadingButton';
 
 //styles
 import "./Chat.css";
 
 import API from "../../api";
 import Components from "../../components/ChatText";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import utils from "../../utils";
 
 const Chat = () => {
 
-  const [conversation, setConversation]= useState([]);
+  const [conversation, setConversation] = useState([]);
   const [userPrompt, setUserPrompt] = useState('');
+  const [loadingResponse, setLoadingResponse] = useState(false);
 
+  const messageHistoryRef = useRef();
 
   const handleUserPromptChange = (e) => {
     setUserPrompt(e.target.value);
   }
 
+  const scrollToBottom = (ref) => {
+    ref.current.scrollIntoView({ behavior: "smooth" });
+  }
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // clear input
+    setUserPrompt('');
+
+    setLoadingResponse(true);
 
     //add prompt to conversation
     const currConversation = [...conversation];
 
     currConversation.push({
-      'role':'user',
-      'parts':[
+      'role': 'user',
+      'parts': [
         {
-          "text":userPrompt
+          "text": userPrompt
         }
       ]
     });
@@ -44,14 +58,25 @@ const Chat = () => {
     setConversation(currConversation)
 
     //api call
-    const reply = await API.chatCompletionAPI({conversation:currConversation});
+    let reply = await API.chatCompletionAPI({ conversation: currConversation });
+
+    // convert reply md to html
+    reply = {
+      ...reply,
+      parts: [{
+        text: utils.convertMDtoHTML(reply?.parts[0]?.text)
+      }],
+    };
+
 
     setConversation((prevConversation) => {
-      return [...prevConversation,reply]
+      return [...prevConversation, reply]
     })
 
-    // clear input
-    setUserPrompt('');
+
+    setLoadingResponse(false);
+
+    // scrollToBottom(messageHistoryRef);
   }
 
   return (
@@ -66,14 +91,18 @@ const Chat = () => {
         className="chat-message-history-container"
         sx={{
           overflow: "auto",
+          padding: "20px 20px",
+          marginBottom: "20px"
         }}
-         display={"flex"}
-      flexDirection="column"
+        display={"flex"}
+        flexDirection="column"
         gap={4}
+        ref={messageHistoryRef}
       >
         {
           conversation?.map((content) => {
-          return <Components.ChatText style={{'maxWidth':'80%',}} message={content?.parts[0]?.text} isReply={content.role === 'model'} />
+
+            return <Components.ChatText key={Math.random() * 1000000 + 1} style={{ 'maxWidth': '80%', }} message={content?.parts[0]?.text} isReply={content.role === 'model'} />
           })
         }
       </Box>
@@ -81,13 +110,13 @@ const Chat = () => {
         className="chat-action-items-container"
       >
         <form onSubmit={handleSubmit} style={{
-          display:'flex',
-          width:"100%"
+          display: 'flex',
+          width: "100%"
         }}>
-        <TextField value={userPrompt} onChange={handleUserPromptChange} fullWidth placeholder="Ask anything....." />
-        <IconButton aria-label="send" color="primary" size="large" type="submit">
-          <SendIcon />
-        </IconButton>
+          <TextField value={userPrompt} onChange={handleUserPromptChange} fullWidth placeholder="Ask anything....." />
+          <LoadingButton loading={loadingResponse} aria-label="send" color="primary" size="large" type="submit">
+            <SendIcon />
+          </LoadingButton>
         </form>
       </Box>
     </Box>
