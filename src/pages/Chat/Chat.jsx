@@ -49,6 +49,9 @@ const Chat = () => {
     setConversation((prevConversation) => {
       return [...prevConversation,reply]
     })
+
+    // clear input
+    setUserPrompt('');
   }
 
   return (
@@ -70,7 +73,7 @@ const Chat = () => {
       >
         {
           conversation?.map((content) => {
-          return <Components.ChatText message={content?.parts[0]?.text} isReply={content.role === 'model'} />
+          return <Components.ChatText style={{'maxWidth':'80%',}} message={content?.parts[0]?.text} isReply={content.role === 'model'} />
           })
         }
       </Box>

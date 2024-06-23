@@ -1,13 +1,14 @@
 import { Paper, Typography } from '@mui/material'
 import React from 'react'
 
-function ChatText({message,isReply}) {
+function ChatText({message,isReply, style}) {
   return (
     <Paper
           elevation={0}
           sx={{
             width: "fit-content",
-            ml: isReply?'default':'auto'
+            ml: isReply?'default':'auto',
+            ...style
           }}
         >
           <Typography
